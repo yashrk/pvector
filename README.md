@@ -13,12 +13,12 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
  - Persistent vector implementation in Cloure by Rich Hickey: https://github.com/clojure/clojure/blob/master/test/clojure/test_clojure/vectors.clj
  - Persistent vector implementation in Racket by Alexis King: https://github.com/lexi-lambda/racket-pvector/tree/master
  - Blog post series «Understanding Clojure's Persistent Vectors» by Jean Niklas L'Orange:
-https://hypirion.com/musings/understanding-persistent-vector-pt-1
-https://hypirion.com/musings/understanding-persistent-vector-pt-2
-https://hypirion.com/musings/understanding-persistent-vector-pt-3
-https://hypirion.com/musings/understanding-clojure-transients
-https://hypirion.com/musings/persistent-vector-performance
-https://hypirion.com/musings/persistent-vector-performance-summarised
+   - https://hypirion.com/musings/understanding-persistent-vector-pt-1
+   - https://hypirion.com/musings/understanding-persistent-vector-pt-2
+   - https://hypirion.com/musings/understanding-persistent-vector-pt-3
+   - https://hypirion.com/musings/understanding-clojure-transients
+   - https://hypirion.com/musings/persistent-vector-performance
+   - https://hypirion.com/musings/persistent-vector-performance-summarised
 
 ## License
 
