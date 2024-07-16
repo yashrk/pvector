@@ -6,7 +6,7 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 
 ## Motivation
 
-The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implementat it myself.
+The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
 
 ## Sources of inspiration
 
