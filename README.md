@@ -1,5 +1,7 @@
 # A toy implementation of persistent vector for Guile Scheme
 
+[![License](https://img.shields.io/github/license/yashrk/raylib-scm.svg?style=social)](LICENSE)
+
 ## Project status
 
 It's just a toy pet-project written for fun, with no commitment to improve or mantain it at all. The code is poorly tested, contains no important optimizations (e.g. shortcut to tail node, transients) and probably isn't production-ready.
@@ -7,6 +9,12 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 ## Motivation
 
 The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
+
+## Performance
+
+[![Random reads, pvector vs. vector and list](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)
+
+[![Random reads, pvector vs. vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
 
 ## Sources of inspiration
 
