@@ -48,21 +48,26 @@
 (define (random-reads-short)
   (let* ([iteration-count 100000]
          [size-list '(10 100 1000 10000 100000)]
-         [pvector-results (map
-                           (lambda (size)
-                             (pvector-random-reads size iteration-count))
-                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [vector-results (map
                           (lambda (size)
                             (vector-random-reads size iteration-count))
                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [vlist-results (map
                          (lambda (size)
                            (vlist-random-reads size iteration-count))
                          size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [list-results (map (lambda (size)
                               (list-random-reads size iteration-count))
                             size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [pvector-results (map
+                           (lambda (size)
+                             (pvector-random-reads size iteration-count))
+                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [results (zip size-list pvector-results vector-results vlist-results list-results)])
     (format #t "size~16tpvector~32tvector~48tvlist~64tlist~%")
     (map (lambda (result)
@@ -76,18 +81,22 @@
 (define (random-reads)
   (let* ([iteration-count 100000]
          [size-list '(10 100 1000 10000 100000 1000000 10000000)]
-         [pvector-results (map
-                           (lambda (size)
-                             (pvector-random-reads size iteration-count))
-                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [vlist-results (map
                          (lambda (size)
                            (vlist-random-reads size iteration-count))
                          size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [vector-results (map
                           (lambda (size)
                             (vector-random-reads size iteration-count))
                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [pvector-results (map
+                           (lambda (size)
+                             (pvector-random-reads size iteration-count))
+                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
          [results (zip size-list pvector-results vlist-results vector-results)])
     (format #t "size~16tpvector~32tvlist~48tvector~%")
     (map (lambda (result)
