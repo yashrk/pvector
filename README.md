@@ -20,7 +20,7 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
 
 This persistent vector, scheme arrays (SRFI-43), vlists, linked lists. Logarithmic scale on both axis.
 
-#### With linked list
+#### Without linked list
 
 [![Random reads, pvector vs. vlist and vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
 
