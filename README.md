@@ -18,13 +18,13 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
 
 [![Random reads, pvector vs. vector, vlist and linked list](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)
 
-This persistent vector, scheme arrays (SRFI-43), vlists, linked lists. Logarithmic scale on both axis.
+Reads from random index, average time in second (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists, linked lists. Logarithmic scale on both axis.
 
 #### Without linked list
 
 [![Random reads, pvector vs. vlist and vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
 
-This persistent vector, scheme arrays (SRFI-43), vlists. Logarithmic scale on data size axis.
+Reads from random index, average time in second (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists (linked list are unacceptable slow with element cound involved). Logarithmic scale on data size axis.
 
 ## Sources of inspiration
 
