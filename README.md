@@ -8,7 +8,7 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 
 ## Motivation
 
-The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
+The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
 
 ## Performance
 
@@ -41,3 +41,7 @@ This persistent vector, scheme arrays (SRFI-43), vlists. Logarithmic scale on da
 ## License
 
 AGPL v3
+
+## Footnotes
+
+[^1]: Of course, [Lokke vector](https://github.com/lokke-org/lokke/blob/main/lib/lokke-vector.c) from the [Lokke project](https://github.com/lokke-org/lokke/tree/main) and [fectors](https://github.com/ijp/fectors) should be mentioned; but I don't understand how to use Lokke vector outside of Lokke environment (and even is it possible at all or no), and the latter project looks abandoned more than decade ago.
