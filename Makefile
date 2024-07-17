@@ -1,4 +1,4 @@
-.PHONY: test
+.PHONY: test,clean
 .ONESHELL: test,benchmark
 test:
 		cd tests
@@ -13,3 +13,5 @@ benchmark:
 		done
 		rm -f *.eps
 		cd ..
+clean:
+		git restore benchmarks/*

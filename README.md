@@ -12,6 +12,8 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
 
 ## Performance
 
+### Access to an element with random index (logarithmic scale)
+
 [![Random reads, pvector vs. vector and list](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)
 
 [![Random reads, pvector vs. vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
