@@ -24,7 +24,7 @@ This persistent vector, scheme arrays (SRFI-43), vlists, linked lists. Logarithm
 
 [![Random reads, pvector vs. vlist and vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
 
-This persistent vector, scheme arrays (SRFI-43), vlists, Logarithmic scale on data size axis.
+This persistent vector, scheme arrays (SRFI-43), vlists. Logarithmic scale on data size axis.
 
 ## Sources of inspiration
 
