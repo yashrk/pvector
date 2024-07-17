@@ -1,0 +1,59 @@
+\input texinfo
+@documentencoding UTF-8
+@settitle @code{pvector} — pure Scheme persistent vector implementation
+
+@titlepage
+@title @code{pvector} — pure Scheme persistent vector implementation
+@end titlepage
+
+@contents
+
+@node Top
+@top pvector
+
+Pure Scheme persistent vector implementation.
+
+@node Motivation
+@chapter Motivation
+
+The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a bit-partitioned vector trie is very beautiful and relatively simple. So once I decided to implement it myself.
+
+@section Sources of inspiration
+
+@itemize @bullet
+    @item
+    Persistent vector implementation in Cloure by Rich Hickey: @url{https://github.com/clojure/clojure/blob/master/test/clojure/test_clojure/vectors.clj}
+
+    @item
+    Persistent vector implementation in Racket by Alexis King: @url{https://github.com/lexi-lambda/racket-pvector/tree/master}
+
+    @item
+    Blog post series «Understanding Clojure's Persistent Vectors» by Jean Niklas L'Orange:
+
+    @itemize @minus
+
+        @item
+        @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}
+
+        @item
+        @url{https://hypirion.com/musings/understanding-persistent-vector-pt-2}
+
+        @item
+        @url{https://hypirion.com/musings/understanding-persistent-vector-pt-3}
+
+        @item
+        @url{https://hypirion.com/musings/understanding-clojure-transients}
+
+        @item
+        @url{https://hypirion.com/musings/persistent-vector-performance}
+
+        @item
+        @url{https://hypirion.com/musings/persistent-vector-performance-summarised}
+
+@end itemize
+
+@end itemize
+
+@include api/index.texi
+
+@bye

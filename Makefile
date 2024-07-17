@@ -1,9 +1,5 @@
 .PHONY: test,clean
 .ONESHELL: test,benchmark
-test:
-		cd tests
-		guile tests.scm
-		cd ..
 benchmark:
 		cd benchmarks
 		guile measure.scm
@@ -15,3 +11,20 @@ benchmark:
 		cd ..
 clean:
 		git restore benchmarks/*
+		rm -f doc/api/index.texi
+		rm -f doc/*.aux
+		rm -f doc/*.fn
+		rm -f doc/*.fns
+		rm -f doc/*.log
+		rm -f doc/*.pdf
+		rm -f doc/*.toc
+doc: doc/pvector.pdf
+doc/pvector.pdf: pvector.scm doc/pvector.texi
+		documenta api pvector.scm
+		cd doc
+		texi2pdf pvector.texi
+		cd ..
+test:
+		cd tests
+		guile tests.scm
+		cd ..

@@ -1,3 +1,9 @@
+;;; Commentary:
+;;
+;; pvector is a persistent vector library for Guile Scheme
+;;
+;;; Code:
+
 (define-module (pvector)
   #:use-module (rnrs)
   #:use-module (srfi srfi-1)
@@ -110,19 +116,28 @@
 ;;;
 
 (define (pvector-empty? pv)
+  "(pvector-empty? pv) -> bool
+
+  Checks if @code{pv} is empty"
   (assert (pvector? pv))
   (= (pvector-length pv) 0))
 
 (define (make-pvector)
-  "Creates empty persistent vector"
+  "(make-pvector) -> pvector
+
+   Creates empty persistent vector"
   (pvector-internal 0 0 (make-leaf)))
 
 (define (pvector . l)
-  "Creates persistent vector from argument list @var{l}"
+  "(pvector l) -> pvector
+
+   Creates persistent vector from argument list @code{l}"
   (list->pvector l))
 
 (define (pvector-ref pv index)
-  "Returns element of persistent vector @var{pv}
+  "(pvector-ref pv index) -> value
+
+   Returns element of persistent vector @var{pv}
    with an index @var{index}"
   (define (ref-aux node offset)
     (let* ([cur-branch (branch-from-index index offset)]
@@ -138,8 +153,10 @@
     (ref-aux root offset)))
 
 (define (pvector-set pv index v)
-  "Returns a new pvector, like @var{pv}, but with a
-  @var{v} at index @var{index}"
+  "(pvector-set pv index v) -> pvector
+
+   Returns a new pvector, like @var{pv}, but with a
+   @var{v} at index @var{index}"
   (let ([length (pvector-length pv)]
         [offset (pvector-offset pv)]
         [root (pvector-root pv)])
@@ -151,6 +168,16 @@
      (new-path index v root offset))))
 
 (define (pvector-fold f acc pv)
+  "(pvector-fold f acc pv) -> pvector
+
+  Accepts function @code{f}, accumulator @code{acc}
+  and pvector @code{pv}. Function @code{f} accepts
+  the element of @code{pvector} and an accumulator
+  value and returns a new accumulator value.
+  @code{pvector-fold} returns a result of a sequential
+  application of @code{f} to all the values of
+  @code{pvector}, with accumulating intermediate
+  results in @code{acc}"
   (let* ([length (pvector-length pv)]
          [indexes (iota length 0)])
     (define (apply-to-element i acc)
@@ -158,10 +185,16 @@
     (fold apply-to-element acc indexes)))
 
 (define (pvector->list pv)
+  "(pvector->list pv) -> list
+
+   Converts values of pvector to list"
   (let ([rev-l (pvector-fold cons '() pv)])
     (reverse rev-l)))
 
 (define (list->pvector l)
+  "(list->pvector l) -> pvector
+
+   Converts elements of list to pvector"
   (fold pvector-cons (make-pvector) l))
 
 (define (pvector-push pv v)
@@ -193,6 +226,9 @@
          (new-path length v old-root offset)))))
 
 (define (pvector-cons v pv)
+  "(pvector-cons v pv) -> pvector
+
+  Adds @var{v} to the end of persistent vector @var{pv}"
   (pvector-push pv v))
 
 (define (pvector-append pv other)
