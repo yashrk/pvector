@@ -24,7 +24,7 @@ Reads from random index, average time in second (lesser is better), with various
 
 [![Random reads, pvector vs. vlist and vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads.png)
 
-Reads from random index, average time in second (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists (linked list are unacceptable slow with element cound involved). Logarithmic scale on data size axis.
+Reads from random index, average time in second (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists (linked list are unacceptable slow with element count involved). Logarithmic scale on data size axis.
 
 ## Sources of inspiration
 
