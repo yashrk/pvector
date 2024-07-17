@@ -6,6 +6,7 @@
 (use-modules (pvector))
 
 (install-color-runner)
+(set! *random-state* (random-state-from-platform))
 
 (test-begin "predicates")
 (let ([empty (make-pvector)]
@@ -99,12 +100,14 @@
 (test-end "vector-of-strings")
 
 (test-begin "big-vector")
-(let* ([v1 (list->pvector (iota 256 0))]
+(let* ([really-big-vector-size 10000000]
+       [v1 (list->pvector (iota 256))]
        [v2 (pvector-append v1 v1)]
        [v3 (pvector-append v2 v2)]
        [v4 (pvector-append v3 v3)]
        [v5 (pvector-append v4 v4)]
-       [v6 (pvector-append v5 v5)])
+       [v6 (pvector-append v5 v5)]
+       [v7 (list->pvector (iota really-big-vector-size))])
   (test-eqv "Vector of 256 elements" (pvector-length v1) 256)
   (test-eqv "Vector of 512 elements" (pvector-length v2) 512)
   (test-eqv "Vector of 1024 elements" (pvector-length v3) 1024)
@@ -118,5 +121,9 @@
   (test-eqv "Big vector content 5" (pvector-ref v6 7936) 0)
   (test-eqv "Big vector content 6" (pvector-ref v6 8191) 255)
   (test-error "Index out of range check 1" #t (pvector-ref v (pvector-length v)))
-  (test-error "Index out of range check 2" #t (pvector-ref v 8192)))
+  (test-error "Index out of range check 2" #t (pvector-ref v 8192))
+  (do ((i 1 (1+ i)))
+      ((> i 10))
+    (let ([random-index (random really-big-vector-size)])
+      (test-eqv (format #f "Read correctnes for big vector ~d" i) (pvector-ref v7 random-index) random-index))))
 (test-end "big-vector")
