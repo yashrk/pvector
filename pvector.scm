@@ -198,7 +198,7 @@
 (define (pvector-append pv other)
   "(pvector-append pv other) -> vector
 
-   Adds of element of persistent vector @other to the
+   Adds of element of persistent vector @var{other} to the
    end of the persistent vector @var{pv}"
   (pvector-fold pvector-cons pv other))
 
