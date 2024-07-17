@@ -11,8 +11,12 @@ set logscale y 10
 set output "random-reads-short.eps"
 plot "random-reads-short.data" using 1:2 lw 3 title "{/:Bold pvector}",\
                             '' using 1:3 lw 3 title "{/:Bold vector}",\
-                            '' using 1:4 lw 3 title "{/:Bold list}"
+                            '' using 1:4 lw 3 title "{/:Bold vlist}",\
+                            '' using 1:5 lw 3 title "{/:Bold list}"
+unset logscale
+set logscale x 10
 set output "random-reads.eps"
-plot "random-reads-short.data" using 1:2 lw 3 title "{/:Bold pvector}",\
-                            '' using 1:3 lw 3 title "{/:Bold vector}"
+plot "random-reads.data" using 1:2 lw 3 title "{/:Bold pvector}",\
+                      '' using 1:3 lw 3 title "{/:Bold vlist}",\
+                      '' using 1:4 lw 3 title "{/:Bold vector}"
 

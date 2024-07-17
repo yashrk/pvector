@@ -1,7 +1,8 @@
-(use-modules (statprof))
-(use-modules (srfi srfi-1))
-(use-modules (srfi srfi-43))
-(use-modules (ice-9 match))
+(use-modules (statprof)
+             (srfi srfi-1)
+             (srfi srfi-43)
+             (ice-9 match)
+             (ice-9 vlist))
 (add-to-load-path "..")
 (use-modules (pvector))
 
@@ -14,7 +15,7 @@
         ((> i iteration-count))
       (list-ref big-list (random list-size)))
     (statprof-stop))
-  (statprof-accumulated-time))
+  (/ (statprof-accumulated-time) iteration-count))
 
 (define (vector-random-reads vector-size iteration-count)
   (let ([big-vector (list->vector (iota vector-size 0))])
@@ -23,7 +24,16 @@
         ((> i iteration-count))
       (vector-ref big-vector (random vector-size)))
     (statprof-stop))
-  (statprof-accumulated-time))
+  (/ (statprof-accumulated-time) iteration-count))
+
+(define (vlist-random-reads vlist-size iteration-count)
+  (let ([big-vlist (list->vlist (iota vlist-size 0))])
+    (statprof-start)
+    (do ((i 1 (1+ i)))
+        ((> i iteration-count))
+      (vlist-ref big-vlist (random vlist-size)))
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
 
 (define (pvector-random-reads vector-size iteration-count)
   (let ([big-pvector (list->pvector (iota vector-size 0))])
@@ -32,7 +42,7 @@
         ((> i iteration-count))
       (pvector-ref big-pvector (random vector-size)))
     (statprof-stop))
-  (statprof-accumulated-time))
+  (/ (statprof-accumulated-time) iteration-count))
 
 ;; Time vs vector size, with list
 (define (random-reads-short)
@@ -46,15 +56,19 @@
                           (lambda (size)
                             (vector-random-reads size iteration-count))
                           size-list)]
+         [vlist-results (map
+                         (lambda (size)
+                           (vlist-random-reads size iteration-count))
+                         size-list)]
          [list-results (map (lambda (size)
                               (list-random-reads size iteration-count))
                             size-list)]
-         [results (zip size-list pvector-results vector-results list-results)])
-    (format #t "size\tpvector\t\tvector\t\tlist~%")
+         [results (zip size-list pvector-results vector-results vlist-results list-results)])
+    (format #t "size~16tpvector~32tvector~48tvlist~64tlist~%")
     (map (lambda (result)
            (match result
-             ((size pvector vector list)
-              (format #t "~d\t~f\t~f\t~f~%" size pvector vector list))))
+             ((size pvector vector vlist list)
+              (format #t "~d~16t~12f~32t~12f~48t~12f~64t~12f~%" size pvector vector vlist list))))
          results)))
 
 
@@ -66,16 +80,20 @@
                            (lambda (size)
                              (pvector-random-reads size iteration-count))
                            size-list)]
+         [vlist-results (map
+                         (lambda (size)
+                           (vlist-random-reads size iteration-count))
+                         size-list)]
          [vector-results (map
                           (lambda (size)
                             (vector-random-reads size iteration-count))
                           size-list)]
-         [results (zip size-list pvector-results vector-results)])
-    (format #t "size\t\tpvector\t\tvector~%")
+         [results (zip size-list pvector-results vlist-results vector-results)])
+    (format #t "size~16tpvector~32tvlist~48tvector~%")
     (map (lambda (result)
            (match result
-             ((size pvector vector)
-              (format #t "~d~16t~f~32t~f~%" size pvector vector))))
+             ((size pvector vlist vector)
+              (format #t "~d~16t~12f~32t~12f~48t~12f~%" size pvector vlist vector))))
          results)))
 
 (format #t "Random reads benchmark, small, with linked list...\t")
