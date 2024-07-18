@@ -4,8 +4,13 @@ benchmark:
 		cd benchmarks
 		guile measure.scm
 		gnuplot random-reads.gnuplot
+		gnuplot random-writes.gnuplot
 		for i in *.eps; do \
-			convert -density 300 $$i -resize 1024x1024 `echo $$i| sed -e 's/.eps//'`.png; \
+			convert -density 300 \
+                    $$i \
+                    -alpha off \
+                    -resize 1024x1024 \
+                    `echo $$i| sed -e 's/.eps//'`.png; \
 		done
 		rm -f *.eps
 		cd ..
