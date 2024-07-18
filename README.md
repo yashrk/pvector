@@ -18,7 +18,7 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
 
 [![Random reads, pvector vs. vector, vlist, vhash and linked list](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-reads-short.png)
 
-Reads from random index, average time in second (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists, vhashes, linked lists. Logarithmic scale on both axis. Vlist is slightly better than pvector, but it doesn't have setter for the random index. Vector is imperative.
+Reads from random index, average time in seconds (lesser is better), with various element count. Performance of persistent vector, scheme arrays (SRFI-43), vlists, vhashes, linked lists. Logarithmic scale on both axis. Vlist is slightly better than pvector, but it doesn't have setter for the random index. Vector is imperative.
 
 #### Without linked list
 
