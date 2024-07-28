@@ -8,7 +8,7 @@
   #:use-module (rnrs)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9 gnu)
-  #:use-module (srfi srfi-43)
+  #:use-module (scheme base)
   #:export (;; Predicates
             pvector?
             pvector-empty?
@@ -20,6 +20,8 @@
             pvector-set
             ;; Whole vector processing
             pvector-fold
+            pvector-foldi
+            pvector-map
             ;; Conversions
             pvector->list
             list->pvector
@@ -183,6 +185,19 @@
     (define (apply-to-element i acc)
       (f (pvector-ref pv i) acc))
     (fold apply-to-element acc indexes)))
+
+(define (pvector-foldi f acc pv)
+  (let* ([length (pvector-length pv)]
+         [indexes (iota length 0)])
+    (define (apply-to-element i acc)
+      (let ([v (pvector-ref pv i)])
+        (f i v acc)))
+    (fold apply-to-element acc indexes)))
+
+(define (pvector-map f pv)
+  (define (apply-to-element i v acc)
+    (pvector-set acc i (f v)))
+  (pvector-foldi apply-to-element pv pv))
 
 (define (pvector->list pv)
   "(pvector->list pv) -> list

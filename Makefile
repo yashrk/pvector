@@ -1,10 +1,12 @@
 .PHONY: test,clean
-.ONESHELL: test,benchmark
+.ONESHELL: doc,benchmark,test
 benchmark:
 		cd benchmarks
 		guile measure.scm
 		gnuplot random-reads.gnuplot
 		gnuplot random-writes.gnuplot
+		gnuplot maps.gnuplot
+		gnuplot folds.gnuplot
 		for i in *.eps; do \
 			convert -density 300 \
                     $$i \
