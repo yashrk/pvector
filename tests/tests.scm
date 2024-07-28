@@ -114,6 +114,22 @@
   (test-eqv "pvector-map sanity check" vector-div-4-sum (* random-list-sum 3)))
 (test-end "fold and map")
 
+(test-begin "foldi")
+(let* ([l (iota 100)]
+       [rl (reverse l)]
+       [pv (list->pvector rl)]
+       [pv-sum (pvector-foldi (lambda (i v s)
+                                (begin
+                                  (test-eqv
+                                    "foldi, intermediate check"
+                                    (+ i v)
+                                    99)
+                                  (+ i v s)))
+                              0
+                              pv)])
+  (test-eqv "foldi check" pv-sum 9900))
+(test-end "foldi")
+
 (test-begin "vector-append")
 (let* ([v (make-pvector)]
        [v1 (pvector-append v (pvector 100500))]
