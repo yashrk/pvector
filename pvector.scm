@@ -183,7 +183,7 @@
 
   Accepts function @code{f}, accumulator @code{acc}
   and pvector @code{pv}. Function @code{f} accepts
-  an index of the current element, the currnet element
+  an index of the current element, the current element
   of @code{pvector} and an accumulator
   value and returns a new accumulator value.
   @code{pvector-fold} returns a result of a sequential
@@ -221,7 +221,7 @@
 
   Accepts function @code{f}, accumulator @code{acc}
   and pvector @code{pv}. Function @code{f} accepts
-  an accumulator value and the element of @code{pvector}
+  the element of @code{pvector} and an accumulator value
   and returns a new accumulator value.
   @code{pvector-fold} returns a result of a sequential
   application of @code{f} to all the values of
@@ -234,10 +234,42 @@
     (pvector-foldi apply-to-element acc pv)))
 
 (define (pvector-map f pv)
-  (define (apply-to-element i v acc)
-    (pvector-push acc (f v)))
+  "(pvector-map f pv) -> pvector
+
+  Apply @code{f} to all values of @code{pv}.
+  Accepts function @code{f} and pvector @code{pv}. Function
+  @code{f} accepts the element of @code{pv} and returns
+  the respective value for the new @code{pvector}."
   (assert (pvector? pv))
-  (pvector-foldi apply-to-element (make-pvector) pv))
+  (let* ([length (pvector-length pv)]
+         [offset (pvector-offset pv)]
+         [root (pvector-root pv)]
+         [cur-index 0]
+         [height (current-height length)])
+    (define (process-leaf l)
+      (let ([leaf-copy (vector-copy l)])
+        (do ((i 0 (1+ i)))
+            ((or (= i branching-factor)
+                 (= cur-index length)))
+          (vector-set! leaf-copy
+                       i
+                       (f (vector-ref l i)))
+          (set! cur-index (1+ cur-index)))
+        leaf-copy))
+    (define (process-node n level)
+      (if (= level height)
+          (process-leaf n)
+          (let ([new-node (make-leaf)])
+            (do ((i 0 (1+ i)))
+                ((or (= i branching-factor)
+                     (= cur-index length)))
+              (vector-set! new-node
+                           i
+                           (process-node (vector-ref n i)
+                                         (1+ level))))
+            new-node)))
+    (let ([new-root (process-node root 1)])
+      (pvector-internal length offset new-root))))
 
 (define (pvector->list pv)
   "(pvector->list pv) -> list
