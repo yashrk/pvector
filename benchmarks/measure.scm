@@ -253,7 +253,7 @@
     (map (lambda (result)
            (match result
              ((size pvector vector vlist list vhash)
-              (format #t "~d~16t~12f~32t~12f~48t~12f~64t~12f~80t~12f~%" size pvector vector vlist list vhash))))
+              (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
          results)))
 
 ;; Reads. Time vs vector size, without list
@@ -286,7 +286,7 @@
     (map (lambda (result)
            (match result
              ((size pvector vlist vector vhash)
-              (format #t "~d~16t~12f~32t~12f~48t~12f~64t~12f~%" size pvector vlist vector vhash))))
+              (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~%" size pvector vlist vector vhash))))
          results)))
 
 ;; Writes
@@ -314,13 +314,13 @@
     (map (lambda (result)
            (match result
              ((size pvector vector vhash)
-              (format #t "~d~16t~12f~32t~12f~48t~12f~%" size pvector vector vhash))))
+              (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~%" size pvector vector vhash))))
          results)))
 
 ;; Maps
 (define (maps)
     (let* ([iteration-count 100000]
-         [size-list '(10 100 1000 10000 100000)]
+         [size-list '(10 100 1000 10000 100000 1000000 10000000)]
          [_ (statprof-reset 0 0 #t)]
          [pvector-results (map
                           (lambda (size)
@@ -357,10 +357,10 @@
       (map (lambda (result)
              (match result
                ((size pvector vector vlist list vhash)
-                (format #t "~d~16t~12f~32t~12f~48t~12f~64t~12f~80t~12f~%" size pvector vector vlist list vhash))))
+                (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
          results)))
 
-;; Maps
+;; Folds
 (define (folds)
     (let* ([iteration-count 100000]
          [size-list '(10 100 1000 10000 100000 10000000)]
@@ -400,7 +400,7 @@
       (map (lambda (result)
              (match result
                ((size pvector vector vlist list vhash)
-                (format #t "~d~16t~12f~32t~12f~48t~12f~64t~12f~80t~12f~%" size pvector vector vlist list vhash))))
+                (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
          results)))
 
 ;;; Benchmarks. Plots
