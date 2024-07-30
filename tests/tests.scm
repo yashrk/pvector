@@ -111,7 +111,12 @@
   (test-eqv "Artithmetic is not broken" from-0-to-99-list-sum 4950)
   (test-eqv "pvector-fold is not broken" from-0-to-99-pvector-sum 4950)
   (test-eqv "pvector-fold for random numbers" random-vector-sum random-list-sum)
-  (test-eqv "pvector-map sanity check" vector-div-4-sum (* random-list-sum 3)))
+  (test-eqv "pvector-map sanity check" vector-div-4-sum (* random-list-sum 3))
+  (test-eqv "pvector-map purity check"
+    (pvector-fold +
+                  0
+                  vector-from-x-12)
+    (* random-list-sum 12)))
 (test-end "fold and map")
 
 (test-begin "foldi")
