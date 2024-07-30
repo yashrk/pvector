@@ -70,9 +70,9 @@ The most common approach to invent persistent data structures (popularized by Kr
 
 @center @image{vector-as-a-shallow-tree, 395.5pt, 178.5pt, vector as a shallow tree}
 
-@center Vector of 14 elements as a shallow tree.
-@center My reporoduction of a picture by Jean Niklas L'Orange
-@center from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}
+@center @it{Vector of 14 elements as a shallow tree.}
+@center @it{My reporoduction of a picture by Jean Niklas L'Orange}
+@center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
 
 We can store the vector as a bunch of small arrays, stored as the leafs of the tree. So, any operation with the single element (access by index, replacing, pushing, popping) will have @math{O(\log_m n)} steps, where @math{n} is the vector size, @math{m} — the branching factor of the tree. Note that those tree can be very broad and thus very shallow: while the binary tree representing a vector with a 1000000 of elements will have @math{\lceil \log_2(1000000)\rceil = 20} levels, a 32-ary tree will have only @math{\lceil \log_32(1000000)\rceil = 4} levels.
 
@@ -84,8 +84,8 @@ Purelly functional structure never changes. So in case of any changes unchanged 
 
 @center @image{implicit-sharing, 417.9pt, 349.3pt, implicit sharing}
 
-@center My reporoduction of a picture by Jean Niklas L'Orange
-@center from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}
+@center @it{My reporoduction of a picture by Jean Niklas L'Orange}
+@center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
 
 At the illustrations orange nodes are shared by the old vector and the new one. This approach can give us a significant optimization of memory used (see @url{https://www.youtube.com/watch?v=sPhpelUfu8Q} for an example of editing a file with a size greater than the memory available).
 
@@ -107,19 +107,19 @@ According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Pe
 
 @center @image{folds-before-optimization,409.6pt,286.8pt, fold performance before optimization}
 
-@center Performance of @code{fold} function before optimization.
+@center @it{Performance of @code{fold} function before optimization.}
 
 @center @image{folds,409.6pt,286.8pt, fold performance after optimization}
 
-@center Performance of @code{fold} function after optimization.
+@center @it{Performance of @code{fold} function after optimization.}
 
 @center @image{maps-before-optimization,409.6pt,286.8pt}
 
-@center Performance of @code{map} function before optimization.
+@center @it{Performance of @code{map} function before optimization.}
 
 @center @image{maps,409.6pt,286.8pt}
 
-@center Performance of @code{map} function after optimization.
+@center @it{Performance of @code{map} function after optimization.}
 
 @include api/index.texi
 
