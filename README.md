@@ -8,7 +8,7 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 
 ## Motivation
 
-The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
+The absence of an efficient Clojure-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
 
 ## Performance
 
@@ -43,6 +43,7 @@ Vhash is better than pvector, but see the data for random reads.
    - https://hypirion.com/musings/understanding-clojure-transients
    - https://hypirion.com/musings/persistent-vector-performance
    - https://hypirion.com/musings/persistent-vector-performance-summarised
+ - A talk «Postmodern immutable data structures» by Juan Pedro Bolivar Puente at CppCon 2017: https://www.youtube.com/watch?v=sPhpelUfu8Q
 
 ## License
 
