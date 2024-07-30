@@ -8,7 +8,7 @@
   #:use-module (rnrs)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9 gnu)
-  #:use-module (srfi srfi-43)
+  #:use-module (scheme base)
   #:export (;; Predicates
             pvector?
             pvector-empty?
@@ -20,6 +20,8 @@
             pvector-set
             ;; Whole vector processing
             pvector-fold
+            pvector-foldi
+            pvector-map
             ;; Conversions
             pvector->list
             list->pvector
@@ -32,8 +34,11 @@
 
 ;;; Utils
 
+(define (intlog base n)
+  (inexact->exact (floor (/ (log n) (log base)))))
+
 (define (intlog2 n)
-  (inexact->exact (/ (log n) (log 2))))
+  (intlog 2 n))
 
 ;;; Internal definitions
 
@@ -48,6 +53,12 @@
 
 ;; Number of bits in branching-factor
 (define offset-step (intlog2 branching-factor))
+
+;; Calculate trie height
+(define (current-height len)
+  (cond [(= len 0) 1]
+        [(= len 1) 1]
+        [else (1+ (intlog branching-factor (1- len)))]))
 
 (define-immutable-record-type <pvector>
   (pvector-internal length offset root)
@@ -167,22 +178,98 @@
      offset
      (new-path index v root offset))))
 
-(define (pvector-fold f acc pv)
+(define (pvector-foldi f acc pv)
   "(pvector-fold f acc pv) -> pvector
 
   Accepts function @code{f}, accumulator @code{acc}
   and pvector @code{pv}. Function @code{f} accepts
-  the element of @code{pvector} and an accumulator
+  an index of the current element, the current element
+  of @code{pvector} and an accumulator
   value and returns a new accumulator value.
   @code{pvector-fold} returns a result of a sequential
   application of @code{f} to all the values of
   @code{pvector}, with accumulating intermediate
   results in @code{acc}"
+  (assert (pvector? pv))
   (let* ([length (pvector-length pv)]
-         [indexes (iota length 0)])
-    (define (apply-to-element i acc)
-      (f (pvector-ref pv i) acc))
-    (fold apply-to-element acc indexes)))
+         [root (pvector-root pv)]
+         [cur-index 0]
+         [cur-acc acc]
+         [height (current-height length)])
+    (define (process-leaf l)
+      (do ((i 0 (1+ i)))
+          ((or (= i branching-factor)
+               (= cur-index length)))
+        (set! cur-acc
+              (f cur-index
+                 (vector-ref l i)
+                 cur-acc))
+        (set! cur-index (1+ cur-index))))
+    (define (process-node n level)
+      (if (= level height)
+          (process-leaf n)
+          (do ((i 0 (1+ i)))
+              ((or (= i branching-factor)
+                   (= cur-index length)))
+            (process-node (vector-ref n i)
+                          (1+ level)))))
+    (process-node root 1)
+    cur-acc))
+
+(define (pvector-fold f acc pv)
+  "(pvector-fold f acc pv) -> pvector
+
+  Accepts function @code{f}, accumulator @code{acc}
+  and pvector @code{pv}. Function @code{f} accepts
+  the element of @code{pvector} and an accumulator value
+  and returns a new accumulator value.
+  @code{pvector-fold} returns a result of a sequential
+  application of @code{f} to all the values of
+  @code{pvector}, with accumulating intermediate
+  results in @code{acc}"
+  (assert (pvector? pv))
+  (let* ([length (pvector-length pv)])
+    (define (apply-to-element i v acc)
+      (f v acc))
+    (pvector-foldi apply-to-element acc pv)))
+
+(define (pvector-map f pv)
+  "(pvector-map f pv) -> pvector
+
+  Apply @code{f} to all values of @code{pv}.
+  Accepts function @code{f} and pvector @code{pv}. Function
+  @code{f} accepts the element of @code{pv} and returns
+  the respective value for the new @code{pvector}."
+  (assert (pvector? pv))
+  (let* ([length (pvector-length pv)]
+         [offset (pvector-offset pv)]
+         [root (pvector-root pv)]
+         [cur-index 0]
+         [height (current-height length)])
+    (define (process-leaf l)
+      (let ([leaf-copy (vector-copy l)])
+        (do ((i 0 (1+ i)))
+            ((or (= i branching-factor)
+                 (= cur-index length)))
+          (vector-set! leaf-copy
+                       i
+                       (f (vector-ref l i)))
+          (set! cur-index (1+ cur-index)))
+        leaf-copy))
+    (define (process-node n level)
+      (if (= level height)
+          (process-leaf n)
+          (let ([new-node (make-leaf)])
+            (do ((i 0 (1+ i)))
+                ((or (= i branching-factor)
+                     (= cur-index length)))
+              (vector-set! new-node
+                           i
+                           (process-node (vector-ref n i)
+                                         (1+ level))))
+            new-node)))
+    (let ([new-root (process-node root 1)])
+      (pvector-internal length offset new-root))))
 
 (define (pvector->list pv)
   "(pvector->list pv) -> list
@@ -236,6 +323,8 @@
 
    Adds of element of persistent vector @var{other} to the
    end of the persistent vector @var{pv}"
+  (assert (pvector? pv))
+  (assert (pvector? other))
   (pvector-fold pvector-cons pv other))
 
 (define (pvector-drop-last pv)
@@ -266,7 +355,7 @@
        (make-leaf))]
      ;; We can use a smaller tree
      [(and (tree-full? (1- length) (- offset offset-step))
-           (> offset 0)) 
+           (> offset 0))
       (pvector-internal
        (1- length)
        (1- offset)

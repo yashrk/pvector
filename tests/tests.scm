@@ -1,5 +1,6 @@
-(use-modules ((srfi srfi-1)))
-(use-modules (srfi srfi-64))
+(use-modules (srfi srfi-1)
+             (srfi srfi-64)
+             (ice-9 match))
 (add-to-load-path (dirname (current-filename)))
 (use-modules (color-tests))
 (add-to-load-path "..")
@@ -75,6 +76,65 @@
   (test-equal "Fold check" (pvector-fold cons '() v2) l))
 (test-end "vector-fold")
 
+(test-begin "fold and map")
+(let* ([from-0-to-99-list (iota 100)]
+       [from-0-to-99-pvector (list->pvector from-0-to-99-list)]
+       [random-list (unfold (lambda (count)
+                              (= count 0))
+                            (lambda (_)
+                              (random 1000))
+                            1-
+                            100)]
+       [random-vector (list->pvector random-list)]
+       [from-0-to-99-list-sum (fold +
+                                    0
+                                    from-0-to-99-list)]
+       [from-0-to-99-pvector-sum (pvector-fold +
+                                               0
+                                               from-0-to-99-pvector)]
+       [random-list-sum (fold +
+                              0
+                              random-list)]
+       [random-vector-sum (pvector-fold +
+                                        0
+                                        random-vector)]
+       [list-x-12 (map (lambda (n)
+                         (* n 12))
+                       random-list)]
+       [vector-from-x-12 (list->pvector list-x-12)]
+       [vector-div-4 (pvector-map (lambda (n)
+                                    (/ n 4))
+                                  vector-from-x-12)]
+       [vector-div-4-sum (pvector-fold +
+                                       0
+                                       vector-div-4)])
+  (test-eqv "Artithmetic is not broken" from-0-to-99-list-sum 4950)
+  (test-eqv "pvector-fold is not broken" from-0-to-99-pvector-sum 4950)
+  (test-eqv "pvector-fold for random numbers" random-vector-sum random-list-sum)
+  (test-eqv "pvector-map sanity check" vector-div-4-sum (* random-list-sum 3))
+  (test-eqv "pvector-map purity check"
+    (pvector-fold +
+                  0
+                  vector-from-x-12)
+    (* random-list-sum 12)))
+(test-end "fold and map")
+
+(test-begin "foldi")
+(let* ([l (iota 100)]
+       [rl (reverse l)]
+       [pv (list->pvector rl)]
+       [pv-sum (pvector-foldi (lambda (i v s)
+                                (begin
+                                  (test-eqv
+                                    "foldi, intermediate check"
+                                    (+ i v)
+                                    99)
+                                  (+ i v s)))
+                              0
+                              pv)])
+  (test-eqv "foldi check" pv-sum 9900))
+(test-end "foldi")
+
 (test-begin "vector-append")
 (let* ([v (make-pvector)]
        [v1 (pvector-append v (pvector 100500))]
@@ -107,7 +167,14 @@
        [v4 (pvector-append v3 v3)]
        [v5 (pvector-append v4 v4)]
        [v6 (pvector-append v5 v5)]
-       [v7 (list->pvector (iota really-big-vector-size))])
+       [v7 (list->pvector (iota really-big-vector-size))]
+       [random-values (unfold (lambda (count)
+                                (= count 0))
+                              (lambda (_)
+                                (cons (random really-big-vector-size)
+                                      (random 1000)))
+                              1-
+                              100)])
   (test-eqv "Vector of 256 elements" (pvector-length v1) 256)
   (test-eqv "Vector of 512 elements" (pvector-length v2) 512)
   (test-eqv "Vector of 1024 elements" (pvector-length v3) 1024)
@@ -120,10 +187,27 @@
   (test-eqv "Big vector content 4" (pvector-ref v6 511) 255)
   (test-eqv "Big vector content 5" (pvector-ref v6 7936) 0)
   (test-eqv "Big vector content 6" (pvector-ref v6 8191) 255)
-  (test-error "Index out of range check 1" #t (pvector-ref v (pvector-length v)))
-  (test-error "Index out of range check 2" #t (pvector-ref v 8192))
+  (test-error "Index out of range check 1" #t (pvector-ref v6 (pvector-length v6)))
+  (test-error "Index out of range check 2" #t (pvector-ref v6 8192))
   (do ((i 1 (1+ i)))
       ((> i 10))
     (let ([random-index (random really-big-vector-size)])
-      (test-eqv (format #f "Read correctnes for big vector ~d" i) (pvector-ref v7 random-index) random-index))))
+      (test-eqv
+        (format #f "Read correctnes for big vector ~d" i)
+        (pvector-ref v7 random-index)
+        random-index)))
+  (let ([pv (fold (lambda (iv pv)
+                    (match iv
+                      ((index . value)
+                       (pvector-set pv index value))))
+                  v7
+                  random-values)])
+    (map (lambda (iv)
+           (match iv
+             ((index . value)
+              (test-eqv
+                "Random mutation of big vector"
+                (pvector-ref pv index)
+                value))))
+         random-values)))
 (test-end "big-vector")
