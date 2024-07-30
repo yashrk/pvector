@@ -8,7 +8,11 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 
 ## Motivation
 
-The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
+The absence of an efficient Clojure-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
+
+## Documentation
+
+See the [manual](https://github.com/yashrk/pvector/blob/main/doc/pvector.pdf) and the documentation strings in [pvector.scm](https://github.com/yashrk/pvector/blob/main/pvector.scm).
 
 ## Performance
 
@@ -32,6 +36,11 @@ Reads from a random index, average time in seconds (lesser is better), with vari
 
 Vhash is better than pvector, but see the data for random reads.
 
+### `map` and `fold`
+
+[![map, pvector vs vector, vlist, list and vhash](https://github.com/yashrk/pvector/blob/main/benchmarks/maps.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/maps.png)
+[![fold, pvector vs vector, vlist, list and vhash](https://github.com/yashrk/pvector/blob/main/benchmarks/folds.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/folds.png)
+
 ## Sources of inspiration
 
  - Persistent vector implementation in Cloure by Rich Hickey: https://github.com/clojure/clojure/blob/master/test/clojure/test_clojure/vectors.clj
@@ -43,6 +52,7 @@ Vhash is better than pvector, but see the data for random reads.
    - https://hypirion.com/musings/understanding-clojure-transients
    - https://hypirion.com/musings/persistent-vector-performance
    - https://hypirion.com/musings/persistent-vector-performance-summarised
+ - A talk «Postmodern immutable data structures» by Juan Pedro Bolivar Puente at CppCon 2017: https://www.youtube.com/watch?v=sPhpelUfu8Q
 
 ## License
 

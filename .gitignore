@@ -1,2 +1,8 @@
 *~
+doc/api
+doc/pvector.aux
+doc/pvector.fn
+doc/pvector.fns
+doc/pvector.log
+doc/pvector.toc
 tests/tests.log

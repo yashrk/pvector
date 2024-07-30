@@ -16,7 +16,9 @@ Pure Scheme persistent vector implementation.
 @node Motivation
 @chapter Motivation
 
-The absence of an efficient Clojue-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a bit-partitioned vector trie is very beautiful and relatively simple. So once I decided to implement it myself.
+@section Why?
+
+The absence of an efficient Clojure-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a bit-partitioned vector trie is very beautiful and relatively simple. So once I decided to implement it myself.
 
 @section Sources of inspiration
 
@@ -50,9 +52,74 @@ The absence of an efficient Clojue-like purelly functional vector in the Guile S
         @item
         @url{https://hypirion.com/musings/persistent-vector-performance-summarised}
 
-@end itemize
+    @end itemize
+
+    @item
+    A talk «Postmodern immutable data structures» by Juan Pedro Bolivar Puente at CppCon 2017: @url{https://www.youtube.com/watch?v=sPhpelUfu8Q}
 
 @end itemize
+
+@node How it works
+@chapter Basic principles
+
+@section Representing vector as a wide shallow tree
+
+The simpliest way to store a vector is an array (reallocated quantum satis). But this representation is incompatible with the immutability: any write operation (change the element, push the new element, pop the element) will get @math{O(n)} steps (where @math{n} is the number of vector elements). So, this naïve implementation will be unacceptably slow.
+
+The most common approach to invent persistent data structures (popularized by Kris Okasaki in his PhD thesis@footnote{Purely Functional Data Structures by Chris Okasaki, Carnegie Mellon University, Pittsburgh, 1996; see also his book with the same name — Purely Functional Data Structures, Cambridge University Press, 1999}) is to store values in a tree and to copy (on write) only the target tree leaf and the path to the target leaf. We can apply this approach to the persistent vector too.
+
+@center @image{vector-as-a-shallow-tree, 395.5pt, 178.5pt, vector as a shallow tree}
+
+@center @it{Vector of 14 elements as a shallow tree.}
+@center @it{My reporoduction of a picture by Jean Niklas L'Orange}
+@center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
+
+We can store the vector as a bunch of small arrays, stored as the leafs of the tree. So, any operation with the single element (access by index, replacing, pushing, popping) will have @math{O(\log_m n)} steps, where @math{n} is the vector size, @math{m} — the branching factor of the tree. Note that those tree can be very broad and thus very shallow: while the binary tree representing a vector with a 1000000 of elements will have @math{\lceil \log_2(1000000)\rceil = 20} levels, a 32-ary tree will have only @math{\lceil \log_32(1000000)\rceil = 4} levels.
+
+The @code{pvector} library uses 32-ary trees.
+
+@section Implicit sharing
+
+Purelly functional structure never changes. So in case of any changes unchanged parts of the structure can be safelly shared between a new copy and the old one.
+
+@center @image{implicit-sharing, 417.9pt, 349.3pt, implicit sharing}
+
+@center @it{My reporoduction of a picture by Jean Niklas L'Orange}
+@center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
+
+At the illustrations orange nodes are shared by the old vector and the new one. This approach can give us a significant optimization of memory used (see @url{https://www.youtube.com/watch?v=sPhpelUfu8Q} for an example of editing a file with a size greater than the memory available).
+
+@section Index bits as a route in a tree
+
+We can consider our tree of arrays as a @emph{trie} — a key/value data structure where the key is stored as a path to the given node. So, in a tree with a branching factor @math{m} the index in a positional numeral system with a radix @math{m} will describe a path to the element: the leftmost digit will describe the number (zero-based) of the root children, the next one — what child node to choose on the level 2 and so on, so the rightmost — the number of the target element in the leaf.
+
+If the branching factor is the power of two, we can implement all the needed operations as a bit shifts and other bitwise operations. Those operations are very fast on modern computers.
+
+@chapter Optimizations
+
+@section Elimination of n-times element lookup in full-vector operations (@code{fold}, @code{foldi}, @code{map})
+
+Every index lookup takes @math{O(\log_m n)} steps, where @math{n} is the vector size and @math{m} is the branching factor.
+
+But in the operations with the whole vector (folds, mapping, search) we don't need to get every element by index. We can process the whole leafs instead.
+
+According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Performance through Transience by Jean Niklas L’Orange, Norwegian University of Science and Technology, 2014, pp.21--22, Theorem 2.5 (@url{https://hypirion.com/thesis.pdf})} the lookup of each element in the tree has the amortised @math{O(1)} complexity, so the whole operation has @math{O(n)} complexity (instead of @math{O(n \log n)} for naïve solution).
+
+@center @image{folds-before-optimization,409.6pt,286.8pt, fold performance before optimization}
+
+@center @it{Performance of @code{fold} function before optimization.}
+
+@center @image{folds,409.6pt,286.8pt, fold performance after optimization}
+
+@center @it{Performance of @code{fold} function after optimization.}
+
+@center @image{maps-before-optimization,409.6pt,286.8pt}
+
+@center @it{Performance of @code{map} function before optimization.}
+
+@center @image{maps,409.6pt,286.8pt}
+
+@center @it{Performance of @code{map} function after optimization.}
 
 @include api/index.texi
 

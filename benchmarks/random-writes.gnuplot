@@ -8,7 +8,7 @@ set style data lines
 set logscale x 10
 set logscale y 10
 set output "random-writes.eps"
-plot "random-writes.data" using 1:2 lw 3 title "{/:Bold pvector}",\
-                       '' using 1:3 lw 3 title "{/:Bold vector}",\
-                       '' using 1:4 lw 3 title "{/:Bold vhash}"
+plot "random-writes.data" using 1:2 lw 3 lc 1 title "{/:Bold pvector}",\
+                       '' using 1:3 lw 3 lc 3 title "{/:Bold vector}",\
+                       '' using 1:4 lw 3 lc 4 title "{/:Bold vhash}"
 
