@@ -10,6 +10,10 @@ It's just a toy pet-project written for fun, with no commitment to improve or ma
 
 The absence of an efficient Clojure-like purelly functional vector in the Guile Scheme standard library and in the Guile ecosystem at all[^1] has always been a pain point for me. However, the idea of a _bit-partitioned vector trie_ is very beautiful and relatively simple. So once I decided to implement it myself.
 
+## Documentation
+
+See the [manual](https://github.com/yashrk/pvector/blob/main/doc/pvector.pdf) and the documentation strings in [pvector.scm](https://github.com/yashrk/pvector/blob/main/pvector.scm).
+
 ## Performance
 
 ### Access to an element with random index
@@ -31,6 +35,11 @@ Reads from a random index, average time in seconds (lesser is better), with vari
 [![Random writes, pvector vs. vhash and vector](https://github.com/yashrk/pvector/blob/main/benchmarks/random-writes.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/random-writes.png)
 
 Vhash is better than pvector, but see the data for random reads.
+
+### `map` and `fold`
+
+[![map, pvector vs vector, vlist, list and vhash](https://github.com/yashrk/pvector/blob/main/benchmarks/maps.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/maps.png)
+[![fold, pvector vs vector, vlist, list and vhash](https://github.com/yashrk/pvector/blob/main/benchmarks/folds.png)](https://github.com/yashrk/pvector/blob/main/benchmarks/folds.png)
 
 ## Sources of inspiration
 
