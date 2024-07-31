@@ -99,7 +99,7 @@ Imagine we store a vector with 9,457 elements in a 7-ary tree and we should get 
 @center @it{My reporoduction of a picture by Jean Niklas L'Orange}
 @center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-2}}
 
-The base-7 representation can now guide our path though the tree. At any level @math{i} (enumerated from the @emph{leaves} level, zero-based) we can obtain the @math{i}-th digit by performing integer division by @math{7^i} to remove the least significant digits, then taking the reminder from the division by @math{7} to get current digit. This digit will indicate the target branch at the current level.
+The base-7 representation can now guide our path through the tree. At any level @math{i} (enumerated from the @emph{leaves} level, zero-based) we can obtain the @math{i}-th digit by performing integer division by @math{7^i} to remove the least significant digits, then taking the reminder from the division by @math{7} to get current digit. This digit will indicate the target branch at the current level.
 
 @math{\lfloor 35420_7 / (7_{10})^4 \rfloor = \lfloor 35420_7 / 10000_7 \rfloor = 3_7}, no need to get a reminder,
 
