@@ -1,0 +1,71 @@
+digraph g {
+    rankdir = TB;
+    splines="ortho";
+    "start"
+    [
+     label = "Get an index";
+     shape = "ellipse";
+    ];
+    "current_initial"
+    [
+     label = "current_node ← root";
+     shape = "box";
+    ];
+    "offset_initial"
+    [
+     label = "shift ← (index_bit_size\n - branch_count_bit_size)";
+     shape = "box";
+    ];
+    "loop_check"
+    [
+     label = "shift = 0?";
+     shape = "hexagon";
+    ];
+    "drop_left_bits"
+    [
+     label = "branch_number ← index AND (branch_count_bit_size-1)";
+     shape = "box";
+    ];
+    "drop_right_bits"
+    [
+     label = "branch_number ← index >> shift";
+     shape = "box";
+    ];
+    "move_current"
+    [
+     label = "current_node ← current_node[branch_number]";
+     shape = "box";
+    ];
+    "change_offset"
+    [
+     label = "shift ← shift - branch_count_bit_size";
+     shape = "box";
+    ];
+    "loop_end"
+    [
+     label = "";
+     shape = "hexagon";
+    ];
+    "drop_left_bits_final"
+    [
+     label = "branch_number ← index AND (branch_count_bit_size-1)";
+     shape = "box";
+    ];
+    "return"
+    [
+     label = "return current_node[branch_number]";
+     shape = "ellipse";
+    ];
+    "start" -> "current_initial";
+    "current_initial" -> "offset_initial";
+    "offset_initial" -> "loop_check";
+    edge [ xlabel = "Yes" ] "loop_check":w -> "drop_left_bits_final";
+    edge [ xlabel = "No" ] "loop_check" -> "drop_right_bits";
+    edge [ xlabel = "" ] "drop_right_bits" -> "drop_left_bits";
+    "drop_left_bits" -> "move_current";
+    "move_current" -> "change_offset";
+    "change_offset" -> "loop_end";
+    "loop_end":e -> "loop_check":e;
+    edge [ style="invisible", arrowhead=none ] "loop_end":s -> "drop_left_bits_final";
+    edge [ style="solid", arrowhead="normal" ] "drop_left_bits_final" -> "return"
+}

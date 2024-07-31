@@ -1,0 +1,97 @@
+// Example from https://hypirion.com/musings/understanding-persistent-vector-pt-2
+// Original picture is drawn by Jean Niklas L’orange (https://hypirion.com/)
+
+digraph g {
+    rankdir = LR;
+    subgraph branching {
+        "head"
+        [
+         label = "<f0> size: 9457 | <f1>"
+         shape = "record"
+         style = "filled"
+         fillcolor = "deepskyblue3"
+         ];
+        "level_1"
+        [
+         shape = none;
+         label = <<table border="0" cellspacing="0">
+         <tr><td port="f10" border="1" bgcolor="white">0</td></tr>
+         <tr><td port="f11" border="1" bgcolor="white">1</td></tr>
+         <tr><td port="f12" border="1" bgcolor="white">2</td></tr>
+         <tr><td port="f13" border="1" bgcolor="darkviolet">3</td></tr>
+         <tr><td port="f14" border="1" bgcolor="white">4</td></tr>
+         <tr><td port="f15" border="1" bgcolor="white">5</td></tr>
+         <tr><td port="f16" border="1" bgcolor="white">6</td></tr>
+         </table>>
+         ];
+        "level_2"
+        [
+         shape = none;
+         label = <<table border="0" cellspacing="0">
+         <tr><td port="f20" border="1" bgcolor="white">0</td></tr>
+         <tr><td port="f21" border="1" bgcolor="white">1</td></tr>
+         <tr><td port="f22" border="1" bgcolor="white">2</td></tr>
+         <tr><td port="f23" border="1" bgcolor="white">3</td></tr>
+         <tr><td port="f24" border="1" bgcolor="white">4</td></tr>
+         <tr><td port="f25" border="1" bgcolor="indianred1">5</td></tr>
+         <tr><td port="f26" border="1" bgcolor="white">6</td></tr>
+         </table>>
+         ];
+        "level_3"
+        [
+         shape = none;
+         label = <<table border="0" cellspacing="0">
+         <tr><td port="f30" border="1" bgcolor="white">0</td></tr>
+         <tr><td port="f31" border="1" bgcolor="white">1</td></tr>
+         <tr><td port="f32" border="1" bgcolor="white">2</td></tr>
+         <tr><td port="f33" border="1" bgcolor="white">3</td></tr>
+         <tr><td port="f34" border="1" bgcolor="turquoise1">4</td></tr>
+         <tr><td port="f35" border="1" bgcolor="white">5</td></tr>
+         <tr><td port="f36" border="1" bgcolor="white">6</td></tr>
+         </table>>
+         ];
+        "level_4"
+        [
+         shape = none;
+         label = <<table border="0" cellspacing="0">
+         <tr><td port="f40" border="1" bgcolor="white">0</td></tr>
+         <tr><td port="f41" border="1" bgcolor="white">1</td></tr>
+         <tr><td port="f42" border="1" bgcolor="coral">2</td></tr>
+         <tr><td port="f43" border="1" bgcolor="white">3</td></tr>
+         <tr><td port="f44" border="1" bgcolor="white">4</td></tr>
+         <tr><td port="f45" border="1" bgcolor="white">5</td></tr>
+         <tr><td port="f46" border="1" bgcolor="white">6</td></tr>
+         </table>>
+         ];
+        "level_5"
+        [
+         shape = none;
+         label = <<table border="0" cellspacing="0">
+         <tr><td port="f50" border="1" bgcolor="lightgreen">0</td></tr>
+         <tr><td port="f51" border="1" bgcolor="white">1</td></tr>
+         <tr><td port="f52" border="1" bgcolor="white">2</td></tr>
+         <tr><td port="f53" border="1" bgcolor="white">3</td></tr>
+         <tr><td port="f54" border="1" bgcolor="white">4</td></tr>
+         <tr><td port="f55" border="1" bgcolor="white">5</td></tr>
+         <tr><td port="f56" border="1" bgcolor="white">6</td></tr>
+         </table>>
+         ];
+        "head":f1 -> "level_1":f13
+        "level_1":f13 -> "level_2":f25
+        "level_2":f25 -> "level_3":f34
+        "level_3":f34 -> "level_4":f42
+        "level_4":f42 -> "level_5":f50
+    }
+
+    subgraph path {
+        node [ shape = none, label="9128" ] "index";
+        node [ shape = none, label="35420" ] "index_7" ;
+        node [ label="3", shape=record, style="filled", fillcolor="darkviolet" ] "3";
+        node [ label="5", shape=record, style="filled", fillcolor="indianred1" ] "5";
+        node [ label="4", shape=record, style="filled", fillcolor="turquoise1" ] "4";
+        node [ label="2", shape=record, style="filled", fillcolor="coral" ] "2";
+        node [ label="0", shape=record, style="filled", fillcolor="lightgreen" ] "0";
+        edge [ label = "To 7-digit system", fontsize=10 ] "index" -> "index_7"
+        edge [label=""] "index_7" -> "3" -> "5" -> "4" -> "2" -> "0"
+    }
+}

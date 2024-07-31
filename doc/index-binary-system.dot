@@ -1,0 +1,108 @@
+digraph g {
+      rankdir = LR;
+      subgraph branching {
+          "head"
+          [
+           label = "<f0> size: 887 | <f1>"
+           shape = "record"
+           ];
+          "level_1"
+          [
+           shape = none;
+           label = <<table border="0" cellspacing="0">
+           <tr><td port="f10" border="1" bgcolor="white">0</td></tr>
+           <tr><td port="f11" border="1" bgcolor="white">1</td></tr>
+           <tr><td port="f12" border="1" bgcolor="darkviolet">2</td></tr>
+           <tr><td port="f13" border="1" bgcolor="white">3</td></tr>
+           </table>>
+           ];
+          "level_2"
+          [
+           shape = none;
+           label = <<table border="0" cellspacing="0">
+           <tr><td port="f20" border="1" bgcolor="white">0</td></tr>
+           <tr><td port="f21" border="1" bgcolor="indianred1">1</td></tr>
+           <tr><td port="f22" border="1" bgcolor="white">2</td></tr>
+           <tr><td port="f23" border="1" bgcolor="white">3</td></tr>
+           </table>>
+           ];
+          "level_3"
+          [
+           shape = none;
+           label = <<table border="0" cellspacing="0">
+           <tr><td port="f30" border="1" bgcolor="white">0</td></tr>
+           <tr><td port="f31" border="1" bgcolor="white">1</td></tr>
+           <tr><td port="f32" border="1" bgcolor="white">2</td></tr>
+           <tr><td port="f33" border="1" bgcolor="turquoise1">3</td></tr>
+           </table>>
+           ];
+          "level_4"
+          [
+           shape = none;
+           label = <<table border="0" cellspacing="0">
+           <tr><td port="f40" border="1" bgcolor="coral">0</td></tr>
+           <tr><td port="f41" border="1" bgcolor="white">1</td></tr>
+           <tr><td port="f42" border="1" bgcolor="white">2</td></tr>
+           <tr><td port="f43" border="1" bgcolor="white">3</td></tr>
+           </table>>
+           ];
+          "level_5"
+          [
+           shape = none;
+           label = <<table border="0" cellspacing="0">
+           <tr><td port="f50" border="1" bgcolor="white">0</td></tr>
+           <tr><td port="f51" border="1" bgcolor="white">1</td></tr>
+           <tr><td port="f52" border="1" bgcolor="lightgreen">2</td></tr>
+           <tr><td port="f53" border="1" bgcolor="white">3</td></tr>
+           </table>>
+           ];
+          "head":f1 -> "level_1":f12
+          "level_1":f12 -> "level_2":f21
+          "level_2":f21 -> "level_3":f33
+          "level_3":f33 -> "level_4":f40
+          "level_4":f40 -> "level_5":f52
+      }
+
+      subgraph shift {
+          node [label = "Shift"; shape=plaintext] "shift_caption";
+          node [ label="8", shape=record, style="filled", fillcolor="darkviolet" ] "shift_8";
+          node [ label="6", shape=record, style="filled", fillcolor="indianred1" ] "shift_6";
+          node [ label="4", shape=record, style="filled", fillcolor="turquoise1" ] "shift_4";
+          node [ label="2", shape=record, style="filled", fillcolor="coral" ]      "shift_2";
+          node [ label="0", shape=record, style="filled", fillcolor="lightgreen" ] "shift_0";
+          edge [ style="invisible", arrowhead="none" ] "shift_caption" -> "shift_8";
+          edge [ style="" ] "shift_8" -> "shift_6" -> "shift_4" -> "shift_2" -> "shift_0"
+      }
+
+      subgraph index {
+        node [label = "Decimal index for current level"; shape=plaintext] "index_caption";
+        node [ label="2", shape=record, style="filled", fillcolor="darkviolet" ] "index_5";
+        node [ label="1", shape=record, style="filled", fillcolor="indianred1" ] "index_4";
+        node [ label="3", shape=record, style="filled", fillcolor="turquoise1" ] "index_3";
+        node [ label="0", shape=record, style="filled", fillcolor="coral" ]      "index_2";
+        node [ label="2", shape=record, style="filled", fillcolor="lightgreen" ] "index_1";
+        edge [ style="invisible", arrowhead="none" ] "index_caption" -> "index_5";
+        edge [ style="" ] "index_5" -> "index_4" -> "index_3" -> "index_2" -> "index_1";
+    }
+
+      subgraph digits
+      {
+        node [label = "Bits for current level"; shape=plaintext] "caption";
+        node [ label="10", shape=plaintext, fontcolor="darkviolet" ] "binary_5";
+        node [ label="01", shape=plaintext, fontcolor="indianred1" ] "binary_4";
+        node [ label="11", shape=plaintext, fontcolor="turquoise1" ] "binary_3";
+        node [ label="00", shape=plaintext, fontcolor="coral"      ] "binary_2";
+        node [ label="10", shape=plaintext, fontcolor="lightgreen" ] "binary_1";
+        edge [ style="invisible", arrowhead="none" ] "caption" -> "binary_5" -> "binary_4" -> "binary_3" -> "binary_2" -> "binary_1"
+    }
+
+    subgraph pos1 {
+        cluster = true;
+        style = "invisible";
+        "level_1";
+        "shift_8";
+        "index_5";
+        "binary_5";
+    }
+
+}

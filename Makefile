@@ -29,6 +29,9 @@ doc: doc/pvector.pdf
 doc/pvector.pdf: pvector.scm doc/pvector.texi
 		documenta api pvector.scm
 		cd doc
+		dot -Tpng index-7-digit-number-system.dot -o index-7-digit-number-system.png
+		dot -Tpng index-binary-system.dot -o index-binary-system.png
+		dot -Tpng index-binary-system-flowchart.dot -o index-binary-system-flowchart.png
 		texi2pdf pvector.texi
 		cd ..
 test:
