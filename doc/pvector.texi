@@ -18,7 +18,7 @@ Pure Scheme persistent vector implementation.
 
 @section Why?
 
-The lack of an efficient Clojure-like purelly functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a bit-partitioned vector trie is very beautiful and relatively simple. So once I decided to implement it myself.
+The lack of an efficient Clojure-like purely functional vector in the Guile Scheme standard library has always been a pain point for me. However, the idea of a bit-partitioned vector trie is very beautiful and relatively simple. So once I decided to implement it myself.
 
 @section Sources of inspiration
 
@@ -80,7 +80,7 @@ The @code{pvector} library uses 32-ary trees.
 
 @section Implicit sharing
 
-A purelly functional structure never changes. Instead of modifying existing values, we create new versions by copying old values. This approach allows parts that are common between the old and new versions of the structure to be safely shared, ensuring efficient use of memory.
+A purely functional structure never changes. Instead of modifying existing values, we create new versions by copying old values. This approach allows parts that are common between the old and new versions of the structure to be safely shared, ensuring efficient use of memory.
 
 @center @image{implicit-sharing, 417.9pt, 349.3pt, implicit sharing}
 
