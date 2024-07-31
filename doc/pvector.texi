@@ -74,7 +74,7 @@ The most common approach to inventing persistent data structures (popularized by
 @center @it{My reporoduction of a picture by Jean Niklas L'Orange}
 @center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
 
-We can store the vector as a collection of small arrays, which form the leaves of a tree. So, any single-element operation such as accessing by index, replacement, pushing, or popping will require @math{O(\log_m n)} steps, where @math{n} is the vector size and @math{m} is the branching factor of the tree. Notably, these trees can be very broad and thus very shallow: while a binary tree representing a vector with 1,000,000 elements would have @math{\lceil \log_2(1000000)\rceil = 20} levels, a 32-ary tree would have only @math{\lceil \log_{32}(1000000)\rceil = 4} levels.
+We can store the vector as a collection of small arrays, which form the leaves of a tree. So, any single-element operation such as accessing by index, replacement, pushing, or popping will require @math{O(\log_m n)} steps, where @math{n} is the vector size and @math{m} is the branching factor of the tree. Notably, these trees can be very broad and thus very shallow: while a binary tree representing a vector with 1,000,000 elements would have @math{\lceil \log_2(1000000)\rceil + 1 = 21} levels, a 32-ary tree would have only @math{\lceil \log_{32}(1000000)\rceil + 1 = 5} levels.
 
 The @code{pvector} library uses 32-ary trees.
 
@@ -93,7 +93,7 @@ In the illustration, the orange nodes are shared between the old vector and the 
 
 We can view our tree of arrays as a @emph{trie} — a key-value data structure where the key is represented as a path to the given node. In a tree with a branching factor of @math{m}, the index in a positional numeral system with radix @math{m} describes a path to an element. Specifically, the leftmost digit indicates the zero-based index of the root's children, the next digit determines which child node to choose at level 2, and so on, with the rightmost digit representing the target element's index within the leaf.
 
-Imagine we store a vector with 9,457 elements in a 7-ary tree and we should get an element with the index 9,128. Our tree will have @math{\lceil \log_7 9457\rceil = 5} levels. To navigate through this structure, we need to transorm our index to the 7-digit system: @math{9457 = 35420_7}.
+Imagine we store a vector with 9,457 elements in a 7-ary tree and we should get an element with the index 9,128. Our tree will have @math{\lceil \log_7 9457\rceil = 5} intermediate levels (we will choose the path in the tree 5 times). To navigate through this structure, we need to transorm our index to the 7-digit system: @math{9457 = 35420_7}.
 
 @center @image{index-7-digit-number-system, 464pt, 216pt, 7-digit index}
 @center @it{My reporoduction of a picture by Jean Niklas L'Orange}
@@ -131,7 +131,7 @@ Each index lookup takes @math{O(\log_m n)} steps, where @math{n} is the size of 
 
 However, for operations involving the entire vector, such as folds, mapping, and searches, we don't need to access each element by index. Instead, we can process entire leaves at once.
 
-According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Performance through Transience by Jean Niklas L’Orange, Norwegian University of Science and Technology, 2014, pp.21--22, Theorem 2.5 (@url{https://hypirion.com/thesis.pdf})} the lookup of each element in the tree has an amortised complexity of @math{O(1)}. Consequently, the entire operation has a complexity of @math{O(n)}, rather than the @math{O(n \log n)} complexity of a naïve solution.
+According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Performance through Transience by Jean Niklas L’Orange, Norwegian University of Science and Technology, 2014, pp.21--22, Theorem 2.5 (@url{https://hypirion.com/thesis.pdf})} the lookup of each leaf (32-element array in our case) in the tree has an amortised complexity of @math{O(1)}. Consequently, the entire operation has a complexity of @math{O(n)}, rather than the @math{O(n \log n)} complexity of a naïve solution.
 
 @center @image{folds-before-optimization,409.6pt,286.8pt, fold performance before optimization}
 
