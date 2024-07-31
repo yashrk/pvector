@@ -113,7 +113,7 @@ The base-7 representation can now guide our path through the tree. At any level 
 
 The only drawback is that integer division and modulo operations are relatively slow.
 
-However, if the branching factor is a power of two, these operation can be optimized. We can perform the integer division using a bit shift by the bit size of the branching factor, and the reminder can be calculated using a bitwise AND with a number that is one less than the branching factor (essentially, a number composed of all bit 1-s in all significant bits). These bitwise operations are very fast on modern computers.
+However, if the branching factor is a power of two, these operations can be optimized. We can perform the integer division using a bit shift by the bit size of the branching factor, and the reminder can be calculated using a bitwise AND with a number that is one less than the branching factor (essentially, a number composed of all bit 1-s in all significant bits). These bitwise operations are very fast on modern computers.
 
 @center @image{index-binary-system, 430.5pt, 226pt, binary index}
 @center @it{My reporoduction of a picture by Jean Niklas L'Orange}
