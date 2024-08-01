@@ -65,6 +65,68 @@
   (test-eqv "Setter check 3" (pvector-ref v5 8192) 100502))
 (test-end "vector-set")
 
+(test-begin "vector-push")
+(let* ([v1 (make-pvector)]
+       [v2 (pvector-push v1 0)]
+       [v3 (fold (lambda (v pv)
+                   (pvector-push pv v))
+                 v2
+                 (iota 31 1))]
+       [v4 (pvector-push v3 32)]
+       [v5 (fold (lambda (v pv)
+                   (pvector-push pv v))
+                 v4
+                 (iota 32 33))]
+       [v6 (fold (lambda (v pv)
+                   (pvector-push pv v))
+                 v5
+                 (iota 960 65))])
+  (test-eqv "Push purity check 1" (pvector-empty? v1) #t)
+  (test-eqv "Push check 1" (pvector-length v2) 1)
+  (test-eqv "Push check 2" (pvector-length v3) 32)
+  (test-eqv "Push check 3" (pvector-length v4) 33)
+  (test-eqv "Push check 4" (pvector-length v5) 65)
+  (test-eqv "Push check 5" (pvector-length v6) 1025)
+  (test-eqv "Push check 6" (pvector-fold + 0 v5) 2080)
+  (test-eqv "Push check 7" (pvector-ref v5 0) 0)
+  (test-eqv "Push check 8" (pvector-ref v5 64) 64)
+  (test-error "Push check 9" #t (pvector-ref v5 65))
+  (test-eqv "Push check 11" (pvector-ref v6 0) 0)
+  (test-eqv "Push check 12" (pvector-ref v6 1024) 1024)
+  (test-eqv "Push check 13" (pvector-fold + 0 v6) 524800))
+(test-end "vector-push")
+
+(test-begin "pvector-drop-last")
+(let* ([v1 (list->pvector (iota 1025))]
+       [v2 (fold (lambda (_ pv)
+                   (pvector-drop-last pv))
+                 v1
+                 (iota 960))]
+       [v3 (fold (lambda (_ pv)
+                   (pvector-drop-last pv))
+                 v2
+                 (iota 32))]
+       [v4 (pvector-drop-last v3)]
+       [v5 (fold (lambda (_ pv)
+                   (pvector-drop-last pv))
+                 v4
+                 (iota 31))]
+       [v6 (pvector-drop-last v5)])
+  (test-eqv "Trimming check 1" (pvector-length v1) 1025)
+  (test-eqv "Trimming check 2" (pvector-fold + 0 v1) 524800)
+  (test-eqv "Trimming check 3" (pvector-length v2) 65)
+  (test-eqv "Trimming check 4" (pvector-fold + 0 v2) 2080)
+  (test-eqv "Trimming check 5" (pvector-length v3) 33)
+  (test-eqv "Trimming check 6" (pvector-fold + 0 v3) 528)
+  (test-eqv "Trimming check 7" (pvector-length v4) 32)
+  (test-eqv "Trimming check 8" (pvector-fold + 0 v4) 496)
+  (test-eqv "Trimming check 9" (pvector-length v5) 1)
+  (test-eqv "Trimming check 10" (pvector-ref v2 0) 0)
+  (test-eqv "Trimming check 11" (pvector-length v6) 0)
+  (test-eqv "Trimming check 12" (pvector-empty? v6) #t)
+  (test-error "Trimming check 13" #t (pvector-ref v6 0)))
+(test-end "pvector-drop-last")
+
 (test-begin "vector-fold")
 (let* ([l (iota 10)]
        [v1 (list->pvector l)]

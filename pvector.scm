@@ -120,7 +120,9 @@
          [(not b)
           new-node]
          ;; Current branch still ist't empty
-         [else (vector-set! new-node branch b)]))])))
+         [else (begin
+                 (vector-set! new-node branch b)
+                 new-node)]))])))
 
 ;;;
 ;;; Public interface
@@ -342,6 +344,7 @@
   ;; Also we have one additional corner case:
   ;; we want never have in a tree empty nodes
   ;; _expect the root node_.
+  (assert (pvector? pv))
   (let ([length (pvector-length pv)]
         [offset (pvector-offset pv)]
         [old-root (pvector-root pv)])
@@ -358,7 +361,7 @@
            (> offset 0))
       (pvector-internal
        (1- length)
-       (1- offset)
+       (- offset offset-step)
        (vector-ref old-root 0))]
      ;; We should delete only the path with
      ;; the last element
