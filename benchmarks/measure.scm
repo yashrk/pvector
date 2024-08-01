@@ -104,6 +104,63 @@
     (statprof-stop))
   (/ (statprof-accumulated-time) iteration-count))
 
+;;; Pushes
+
+(define (pvector-pushes vector-size iteration-count)
+  (let ([pv (make-pvector)]
+        [new-elements (iota vector-size)])
+    (statprof-start)
+    (fold (lambda (v pv)
+            (pvector-push pv v))
+          pv
+          new-elements)
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
+
+(define (vector-pushes vector-size iteration-count)
+  (let ([vv (make-vector 0)]
+        [new-elements (iota vector-size)])
+    (statprof-start)
+    (fold (lambda (v vv)
+            (vector-append vv (vector v)))
+          vv
+          new-elements)
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
+
+(define (list-pushes list-size iteration-count)
+  (let ([l '()]
+        [new-elements (iota list-size)])
+    (statprof-start)
+    (fold (lambda (v l)
+            (cons v l))
+          l
+          new-elements)
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
+
+(define (vlist-pushes vlist-size iteration-count)
+  (let ([vl vlist-null]
+        [new-elements (iota vlist-size)])
+    (statprof-start)
+    (fold (lambda (v vl)
+            (cons v vl))
+          vl
+          new-elements)
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
+
+(define (vhash-pushes vhash-size iteration-count)
+  (let ([vh vlist-null]
+        [new-elements (iota vhash-size)])
+    (statprof-start)
+    (fold (lambda (v vh)
+            (vhash-cons v v vh))
+          vh
+          new-elements)
+    (statprof-stop))
+  (/ (statprof-accumulated-time) iteration-count))
+
 ;;; Maps and folds
 
 ;; Maps
@@ -317,15 +374,57 @@
               (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~%" size pvector vector vhash))))
          results)))
 
+;; Pushes
+(define (pushes)
+  (let* ([iteration-count 100000]
+         [size-list '(10 100 1000 10000 100000)]
+         [_ (statprof-reset 0 0 #t)]
+         [vector-results (map
+                          (lambda (size)
+                            (vector-pushes size iteration-count))
+                          size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [vlist-results (map
+                         (lambda (size)
+                           (vlist-pushes size iteration-count))
+                         size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [vhash-results (map
+                         (lambda (size)
+                           (vhash-pushes size iteration-count))
+                         size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [list-results (map (lambda (size)
+                              (list-pushes size iteration-count))
+                            size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [pvector-results (map
+                           (lambda (size)
+                             (pvector-pushes size iteration-count))
+                           size-list)]
+         [_ (statprof-reset 0 0 #t)]
+         [results (zip size-list
+                       pvector-results
+                       vector-results
+                       vlist-results
+                       list-results
+                       vhash-results)])
+    (format #t "size~16tpvector~32tvector~48tvlist~64tlist~80tvhash~%")
+    (map (lambda (result)
+           (match result
+             ((size pvector vector vlist list vhash)
+              (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
+         results)))
+
 ;; Maps
 (define (maps)
-    (let* ([iteration-count 100000]
+  (let* ([iteration-count 100000]
          [size-list '(10 100 1000 10000 100000 1000000 10000000)]
          [_ (statprof-reset 0 0 #t)]
          [pvector-results (map
-                          (lambda (size)
-                            (pvector-maps size iteration-count))
-                          size-list)]
+                           (lambda (size)
+                             (pvector-maps size iteration-count))
+                           size-list)]
          [_ (statprof-reset 0 0 #t)]
          [vector-results (map
                           (lambda (size)
@@ -333,9 +432,9 @@
                           size-list)]
          [_ (statprof-reset 0 0 #t)]
          [vlist-results (map
-                          (lambda (size)
-                            (vlist-maps size iteration-count))
-                          size-list)]
+                         (lambda (size)
+                           (vlist-maps size iteration-count))
+                         size-list)]
          [_ (statprof-reset 0 0 #t)]
          [list-results (map
                         (lambda (size)
@@ -353,11 +452,11 @@
                        vlist-results
                        list-results
                        vhash-results)])
-      (format #t "size~16tpvector~32tvector~48tvlist~64tlist~80tvhash~%")
-      (map (lambda (result)
-             (match result
-               ((size pvector vector vlist list vhash)
-                (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
+    (format #t "size~16tpvector~32tvector~48tvlist~64tlist~80tvhash~%")
+    (map (lambda (result)
+           (match result
+             ((size pvector vector vlist list vhash)
+              (format #t "~d~16t~12,10f~32t~12,10f~48t~12,10f~64t~12,10f~80t~12,10f~%" size pvector vector vlist list vhash))))
          results)))
 
 ;; Folds
@@ -415,6 +514,10 @@
 
 (format #t "Random writes benchmark...\t\t\t\t")
 (with-output-to-file "random-writes.data" random-writes)
+(format #t "\x1B[35mDONE\x1B[0m\n")
+
+(format #t "Pushes benchmark...\t\t\t\t\t")
+(with-output-to-file "pushes.data" pushes)
 (format #t "\x1B[35mDONE\x1B[0m\n")
 
 (format #t "Maps over collections...\t\t\t\t")

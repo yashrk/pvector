@@ -5,6 +5,7 @@ benchmark:
 		guile measure.scm
 		gnuplot random-reads.gnuplot
 		gnuplot random-writes.gnuplot
+		gnuplot pushes.gnuplot
 		gnuplot maps.gnuplot
 		gnuplot folds.gnuplot
 		for i in *.eps; do \
