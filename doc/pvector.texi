@@ -87,7 +87,7 @@ A purely functional structure never changes. Instead of modifying existing value
 @center @it{My reporoduction of a picture by Jean Niklas L'Orange}
 @center @it{from @url{https://hypirion.com/musings/understanding-persistent-vector-pt-1}}
 
-In the illustration, the orange nodes are shared between the old vector and the new one. This approach significantly optimizes memory usage. See @url{https://www.youtube.com/watch?v=sPhpelUfu8Q} for an example of editing a file larger than the available memory.
+In the illustration, the new vector (blue) uses orange (old) nodes for all values, not visited during the update. This approach significantly optimizes memory usage. See @url{https://www.youtube.com/watch?v=sPhpelUfu8Q} for an example of editing a file larger than the available memory.
 
 @section Index bits as a route in a tree
 
