@@ -61,18 +61,38 @@
         [else (1+ (intlog branching-factor (1- len)))]))
 
 (define-immutable-record-type <pvector>
-  (pvector-internal length offset root)
+  (pvector-internal length offset root tail tail-length)
   pvector?
-  (length pvector-length set-pvector-length)
-  (offset pvector-offset set-pvector-offset)
-  (root   pvector-root   set-pvector-root))
+  (length      pvector-length      set-pvector-length)
+  (offset      pvector-offset      set-pvector-offset)
+  (root        pvector-root        set-pvector-root)
+  (tail        pvector-tail        set-pvector-tail)
+  (tail-length pvector-tail-length set-pvector-tail-length))
 
+(define (tree-capacity offset)
+  (ash branching-factor offset))
+
+;; tree-full? is a predicate to determine whether
+;; a tree with "length" elements is full (with no
+;; free leaves)
+;; The answer is calculated from the arithmetic left
+;; bit shift of branching factor (wich is number of
+;; bits in the branching-factor, multiplied by tree
+;; level number) compared with current length of the
+;; elements in the tree (not in tail).
+;; A tree will be full for offset=0 and
+;; length=branching-factor, for ofsset=offset-step
+;; and branching-factor^2 elements and so on.
 (define (tree-full? length offset)
-  (= length (ash branching-factor offset)))
+  (= length (tree-capacity offset)))
 
 (define (branch-from-index index offset)
   (logand (ash index (- offset))
           index-mask))
+
+(define (pvector-tail-offset pv)
+  (- (pvector-length pv)
+     (pvector-tail-length pv)))
 
 (define (make-leaf)
   (make-vector branching-factor))
@@ -96,33 +116,115 @@
                      (- offset offset-step)))
           node))))
 
-(define (drop-path index node offset)
-  (let* ([branch (branch-from-index index offset)]
+(define (new-leaf start-index leaf node offset)
+  (let ([node (if (unspecified? node)
+                  (make-leaf)
+                  (vector-copy node))]
+        [branch (branch-from-index start-index offset)])
+    (if (= offset 0) ; Are we in a leaf?
+        leaf
+        (begin
+          (vector-set!
+           node
+           branch
+           (new-leaf start-index
+                     leaf
+                     (vector-ref node branch)
+                     (- offset offset-step)))
+          node))))
+
+(define (pvector-tree-ref pv index)
+  (define (ref-aux node offset)
+    (let* ([cur-branch (branch-from-index index offset)]
+           [cur-val (vector-ref node cur-branch)])
+      (if (= offset 0)
+          cur-val
+          (ref-aux cur-val (- offset offset-step)))))
+  (let ([length (pvector-length pv)]
+        [offset (pvector-offset pv)]
+        [root (pvector-root pv)])
+    (ref-aux root offset)))
+
+(define (pvector-push-leaf pv start-index leaf)
+ (let ([length (pvector-length pv)]
+       [offset (pvector-offset pv)]
+       [old-root (pvector-root pv)]
+       [tail (pvector-tail pv)]
+       [tail-length (pvector-tail-length pv)]
+       [tail-offset (pvector-tail-offset pv)])
+   (if (tree-full? tail-offset offset)
+       ;; the tree is full, the new root is needed
+       (let ([new-root (make-leaf)])
+         (vector-set! new-root 0 old-root)
+         (vector-set! new-root 1 (new-leaf start-index leaf (vector-ref new-root 1) offset))
+         (pvector-internal
+          length
+          (+ offset offset-step)
+          new-root
+          tail
+          tail-length))
+       ;; We have some space in the current tree
+       (pvector-internal
+        length
+        offset
+        (new-leaf start-index leaf old-root offset)
+        tail
+        tail-length))))
+
+(define (drop-path start-index node offset)
+  (let* ([branch (branch-from-index start-index offset)]
          [new-node (make-leaf)])
     (vector-copy! new-node 0 node 0 branch)
-    (cond
-     ;; It was a last element in the leaf
-     [(and (= offset 0)(= branch 0))
-      #f]
-     ;; It wasn't a last element in the leaf
-     [(= offset 0)
-      new-node]
+    (if ; It was a leaf
+     (= offset 0)
+     #f
      ;; We are working with the intermediate node
-     [else
-      (let ([b (drop-path index
-                          (vector-ref node branch)
-                          (- offset offset-step))])
-        (cond
-         ;; It was last branch, and it's now empty
-         [(and (= index 0)(not b))
-          #f]
-         ;; Current branch is empty now
-         [(not b)
-          new-node]
-         ;; Current branch still ist't empty
-         [else (begin
-                 (vector-set! new-node branch b)
-                 new-node)]))])))
+     (let ([b (drop-path start-index
+                         (vector-ref node branch)
+                         (- offset offset-step))])
+       (cond
+        ;; It was last branch, and it's now empty
+        [(and (= start-index 0)(not b))
+         #f]
+        ;; Current branch is empty now
+        [(not b)
+         new-node]
+        ;; Current branch still ist't empty
+        [else (begin
+                (vector-set! new-node branch b)
+                new-node)])))))
+
+(define (pvector-drop-leaf pv)
+  (let* ([length (pvector-length pv)]
+         [offset (pvector-offset pv)]
+         [old-root (pvector-root pv)]
+         [tail-offset (pvector-tail-offset pv)]
+         [start-index (- tail-offset branching-factor)])
+    (define (last-leaf node cur-offset)
+      (if (= cur-offset 0)
+          node
+          (last-leaf (vector-ref node
+                                 (branch-from-index
+                                  start-index
+                                  cur-offset))
+                     (- cur-offset offset-step))))
+    (assert (> length 0))
+    (if (tree-full? (- tail-offset branching-factor) ; We can use a smaller tree
+                    (- offset offset-step))
+        (pvector-internal
+         (1- length)
+         (- offset offset-step)
+         (vector-ref old-root 0)
+         (last-leaf old-root offset)
+         branching-factor)
+        ;; We should delete only the path with
+        ;; the last element
+        (pvector-internal
+         (1- length)
+         offset
+         (drop-path start-index old-root offset)
+         (last-leaf old-root offset)
+         branching-factor))))
 
 ;;;
 ;;; Public interface
@@ -139,7 +241,7 @@
   "(make-pvector) -> pvector
 
    Creates empty persistent vector"
-  (pvector-internal 0 0 (make-leaf)))
+  (pvector-internal 0 0 #f (make-leaf) 0))
 
 (define (pvector . l)
   "(pvector l) -> pvector
@@ -152,18 +254,12 @@
 
    Returns element of persistent vector @var{pv}
    with an index @var{index}"
-  (define (ref-aux node offset)
-    (let* ([cur-branch (branch-from-index index offset)]
-           [cur-val (vector-ref node cur-branch)])
-      (if (= offset 0)
-          cur-val
-          (ref-aux cur-val (- offset offset-step)))))
-  (let ([length (pvector-length pv)]
-        [offset (pvector-offset pv)]
-        [root (pvector-root pv)])
-    (assert (< index length))
-    (assert (>= index 0))
-    (ref-aux root offset)))
+  (assert (>= index 0))
+  (assert (< index (pvector-length pv)))
+  (let ([tail-offset (pvector-tail-offset pv)])
+    (if (>= index tail-offset)
+        (vector-ref (pvector-tail pv) (- index tail-offset))
+        (pvector-tree-ref pv index))))
 
 (define (pvector-set pv index v)
   "(pvector-set pv index v) -> pvector
@@ -172,13 +268,30 @@
    @var{v} at index @var{index}"
   (let ([length (pvector-length pv)]
         [offset (pvector-offset pv)]
-        [root (pvector-root pv)])
+        [root (pvector-root pv)]
+        [tail (pvector-tail pv)]
+        [tail-length (pvector-tail-length pv)]
+        [tail-offset (pvector-tail-offset pv)])
     (assert (< index length))
     (assert (>= index 0))
-    (pvector-internal
-     length
-     offset
-     (new-path index v root offset))))
+    (if (>= index tail-offset)
+        (let* ([new-tail (vector-copy tail)]
+               [_ (vector-set!
+                   new-tail
+                   (- index tail-offset)
+                   v)])
+          (pvector-internal
+           length
+           offset
+           root
+           new-tail
+           tail-length))
+        (pvector-internal
+         length
+         offset
+         (new-path index v root offset)
+         tail
+         tail-length))))
 
 (define (pvector-foldi f acc pv)
   "(pvector-fold f acc pv) -> pvector
@@ -195,13 +308,14 @@
   (assert (pvector? pv))
   (let* ([length (pvector-length pv)]
          [root (pvector-root pv)]
+         [tail (pvector-tail pv)]
+         [tail-offset (pvector-tail-offset pv)]
          [cur-index 0]
          [cur-acc acc]
-         [height (current-height length)])
+         [height (current-height tail-offset)])
     (define (process-leaf l)
       (do ((i 0 (1+ i)))
-          ((or (= i branching-factor)
-               (= cur-index length)))
+          ((= i branching-factor))
         (set! cur-acc
               (f cur-index
                  (vector-ref l i)
@@ -212,10 +326,19 @@
           (process-leaf n)
           (do ((i 0 (1+ i)))
               ((or (= i branching-factor)
-                   (= cur-index length)))
+                   (= cur-index tail-offset)))
             (process-node (vector-ref n i)
                           (1+ level)))))
-    (process-node root 1)
+    (when root
+      (process-node root 1))
+    (do ((i 0 (1+ i)))
+        ((or (= i branching-factor)
+             (= cur-index length)))
+      (set! cur-acc
+            (f cur-index
+               (vector-ref tail i)
+               cur-acc))
+      (set! cur-index (1+ cur-index)))
     cur-acc))
 
 (define (pvector-fold f acc pv)
@@ -246,13 +369,15 @@
   (let* ([length (pvector-length pv)]
          [offset (pvector-offset pv)]
          [root (pvector-root pv)]
+         [new-tail (vector-copy (pvector-tail pv))]
+         [tail-length (pvector-tail-length pv)]
+         [tail-offset (pvector-tail-offset pv)]
          [cur-index 0]
-         [height (current-height length)])
+         [height (current-height tail-offset)])
     (define (process-leaf l)
       (let ([leaf-copy (vector-copy l)])
         (do ((i 0 (1+ i)))
-            ((or (= i branching-factor)
-                 (= cur-index length)))
+            ((= i branching-factor))
           (vector-set! leaf-copy
                        i
                        (f (vector-ref l i)))
@@ -264,14 +389,23 @@
           (let ([new-node (make-leaf)])
             (do ((i 0 (1+ i)))
                 ((or (= i branching-factor)
-                     (= cur-index length)))
+                     (= cur-index tail-offset)))
               (vector-set! new-node
                            i
                            (process-node (vector-ref n i)
                                          (1+ level))))
             new-node)))
-    (let ([new-root (process-node root 1)])
-      (pvector-internal length offset new-root))))
+    (let ([new-root (if root
+                        (process-node root 1)
+                        #f)])
+      (do ((i 0 (1+ i)))
+          ((or (= i branching-factor)
+               (= cur-index length)))
+        (vector-set! new-tail
+                     i
+                     (f (vector-ref new-tail i)))
+        (set! cur-index (1+ cur-index)))
+      (pvector-internal length offset new-root new-tail tail-length))))
 
 (define (pvector->list pv)
   "(pvector->list pv) -> list
@@ -290,29 +424,37 @@
   "(pvector-push pv v) -> pvector
 
   Adds @var{v} to the end of persistent vector @var{pv}"
-  ;; We have 3 possible cases:
-  ;; 1)the tree is full, we need a new root
-  ;; 2)the rightmost leaf is full
-  ;; 3)we have some space in the rightmost leaf
-  ;; Cases 2 and 3 can be processed by
-  ;; the same code.
   (let ([length (pvector-length pv)]
         [offset (pvector-offset pv)]
-        [old-root (pvector-root pv)])
-    (if (tree-full? length offset)
-        ;; the tree is full, the new root is needed
-        (let ([new-root (make-leaf)])
-          (vector-set! new-root 0 old-root)
-          (vector-set! new-root 1 (new-path length v (vector-ref new-root 1) offset))
+        [root (pvector-root pv)]
+        [tail (pvector-tail pv)]
+        [tail-length (pvector-tail-length pv)])
+    (if (= tail-length branching-factor) ; Is the tail full?
+        (let ([new-pv (if root
+                          (pvector-push-leaf pv
+                                             (pvector-tail-offset pv)
+                                             tail)
+                          (pvector-internal length
+                                            offset
+                                            tail
+                                            #f
+                                            #f))]
+              [new-tail (make-leaf)])
+          (vector-set! new-tail 0 v)
           (pvector-internal
            (1+ length)
-           (+ offset offset-step)
-           new-root))
-        ;; We have some space in the current tree
-        (pvector-internal
-         (1+ length)
-         offset
-         (new-path length v old-root offset)))))
+           (pvector-offset new-pv)
+           (pvector-root new-pv)
+           new-tail
+           1))
+        (let ([new-tail (vector-copy tail)])
+          (vector-set! new-tail tail-length v)
+          (pvector-internal
+           (1+ length)
+           offset
+           root
+           new-tail
+           (1+ tail-length))))))
 
 (define (pvector-cons v pv)
   "(pvector-cons v pv) -> pvector
@@ -332,41 +474,24 @@
 (define (pvector-drop-last pv)
   "Returns a copy of persistent vector @var{pv}, but
    without a last element"
-  ;; Here we also have 3 possible cases:
-  ;; 1)we have more elements in rightmost leaf;
-  ;; 2)we are going to delete the last element
-  ;; from the current leaf, but we still need
-  ;; the current number of levels to store the
-  ;; vector of the current size;
-  ;; 3)we should kill the root and make a tree
-  ;; with smaller number of levels.
-  ;;
-  ;; Also we have one additional corner case:
-  ;; we want never have in a tree empty nodes
-  ;; _expect the root node_.
   (assert (pvector? pv))
   (let ([length (pvector-length pv)]
         [offset (pvector-offset pv)]
-        [old-root (pvector-root pv)])
+        [root (pvector-root pv)]
+        [tail (pvector-tail pv)]
+        [tail-length (pvector-tail-length pv)])
     (assert (> length 0))
-    (cond
-     ;; Special case for root: it is never unspecified
-     [(= length 1)
-      (pvector-internal
-       0
-       0
-       (make-leaf))]
-     ;; We can use a smaller tree
-     [(and (tree-full? (1- length) (- offset offset-step))
-           (> offset 0))
-      (pvector-internal
-       (1- length)
-       (- offset offset-step)
-       (vector-ref old-root 0))]
-     ;; We should delete only the path with
-     ;; the last element
-     [else
-      (pvector-internal
-       (1- length)
-       offset
-       (drop-path (1- length) old-root offset))])))
+    ;; Invariant: tail can't be empty
+    ;; (except the special case of the
+    ;; empty vector)
+    (cond [(= length 1)
+           (make-pvector)]
+          [(> tail-length 1)
+           (pvector-internal
+            (1- length)
+            offset
+            root
+            (vector-copy tail)
+            (1- tail-length))]
+          [else
+           (pvector-drop-leaf pv)])))
