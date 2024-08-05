@@ -149,6 +149,12 @@ According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Pe
 
 @center @it{Performance of @code{map} function after optimization.}
 
+@section Shortcut to tail
+
+@center @image{pushes-before-optimization,512pt,358.5pt, pushes performance before optimization}
+
+@center @image{pushes,512pt,358.5pt, pushes performance after optimization}
+
 @include api/index.texi
 
 @bye
