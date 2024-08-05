@@ -18,7 +18,7 @@
             ;; ;; Access to elements
             pvector-ref
             pvector-set
-            ;; Whole vector processing
+            ;; Iteration
             pvector-fold
             pvector-foldi
             pvector-map
@@ -375,14 +375,8 @@
          [cur-index 0]
          [height (current-height tail-offset)])
     (define (process-leaf l)
-      (let ([leaf-copy (vector-copy l)])
-        (do ((i 0 (1+ i)))
-            ((= i branching-factor))
-          (vector-set! leaf-copy
-                       i
-                       (f (vector-ref l i)))
-          (set! cur-index (1+ cur-index)))
-        leaf-copy))
+      (set! cur-index (+ cur-index branching-factor))
+      (vector-map f l))
     (define (process-node n level)
       (if (= level height)
           (process-leaf n)
