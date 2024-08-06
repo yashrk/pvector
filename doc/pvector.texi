@@ -151,9 +151,17 @@ According to Jean Niklas L'Orange's master thesis@footnote{Improving RRB-Tree Pe
 
 @section Shortcut to tail
 
-@center @image{pushes-before-optimization,512pt,358.5pt, pushes performance before optimization}
+When a program intencivelly pushes elements into the vector, it repeatedly needs to look up the last (rightmost) leaf in the tree. This process can be optimized by storing a reference to the last segement of the vector at the head of the data structure.
 
-@center @image{pushes,512pt,358.5pt, pushes performance after optimization}
+If the tail is full, we insert it into a tree as a last (rightmost) leaf. Conversely, if the tail becomes empty after several deletions, we remove the last leaf from the tree and make it a new tail.
+
+@center @image{tail-as-a-last-leaf, 268.1pt,261.1pt, tail as a new last leaf}
+
+Below, you can see the performance of new element insertions before and after the optimization.
+
+@center @image{pushes-before-optimization, 358.4pt,250.95pt, pushes performance before optimization}
+
+@center @image{pushes, 358.4pt,250.95pt, pushes performance after optimization}
 
 @include api/index.texi
 
